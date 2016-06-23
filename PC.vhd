@@ -29,7 +29,7 @@ process(clk,rst)
 					if (count = 4294967296) then
 					count <=0;		
 					else
-					count<=count+1;		
+					count<=count+4;		
 					end if;		
 				end if;
 			end if;

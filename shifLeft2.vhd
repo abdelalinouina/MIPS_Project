@@ -14,6 +14,6 @@ end shifLeft2;
 begin
    process(input)
    begin   
-		output(width-1 downto 0)<= std_logic_vector(unsigned(input(width-3 downto 0) )&"00"); 
+		output<= std_logic_vector(unsigned(input(width-3 downto 0) )&"00"); 
    end process;
    end BHV;

@@ -13,7 +13,8 @@ entity regFile is
 	regASel     : in std_logic_vector(4 downto 0);
 	regBSel     : in std_logic_vector(4 downto 0);
 	writeRegSel : in std_logic_vector(4 downto 0);
-	clk         : in  std_logic);
+	jumpAndLink : in std_logic;
+	clk,rst     : in  std_logic);
     
 end regFile;
  
@@ -21,13 +22,24 @@ end regFile;
 	type registerFile is array(natural range <>) of std_logic_vector (width-1 downto 0);
 	signal registers: registerFile(31 downto 0);
 	begin	
-   regFile : process(clk)
+   regFile : process(clk,rst)
 	   begin 
-	   if rising_edge(clk) then
+	   if (rst = '1') then
+      outputA   <= (others => '0');
+      outputB   <= (others => '0');
+      for i in 0 to 31 loop
+		registers(i) <=(others =>'0');
+	  end loop;
+	   elsif rising_edge(clk) then
+			registers(0) <=(others =>'0');
 			outputA <= registers(to_integer(unsigned(regAsel)));
 			outputB <= registers(to_integer(unsigned(regBsel)));
 			if wren ='1' then
+			if jumpAndLink = '1' then
+			registers(31)<=input;
+			else
 		    registers(to_integer(unsigned(writeRegSel)))<=input;
+		    end if;
 			   if (regAsel = writeRegSel) then 
 					outputA<=input;
 				end if;
