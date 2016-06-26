@@ -4,12 +4,12 @@ use ieee.numeric_std.all;
 use ieee.math_real.all;
 
 entity signExtend is
-	generic (width  :     positive := 32);
-	port(   input     : in  std_logic_vector(15 downto 0);   
-	   		output    : out  std_logic_vector(31 downto 0));
+	generic (width  : positive := 32);
+	port	(input  : in  std_logic_vector(15 downto 0);   
+	   		 output : out  std_logic_vector(31 downto 0));
 end signExtend;
  
-  architecture BHV of signExtend is
+architecture BHV of signExtend is
 begin
    process(input)
 	   begin
