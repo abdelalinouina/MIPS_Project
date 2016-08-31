@@ -19,7 +19,7 @@ type functions is (
 					s_Type_I_completion,				s_add_immediate_u,		s_Instruction_Fetch2,
 					s_R_type_completion,				s_Exectution,			s_Memory_access_read,
 					S_Instruction_Read,					s_Memory_address_computaion,
-					s_Memory_read_completion_step
+					s_Memory_read_completion_step,s_dec_init,s_dec_init2,s_dec_init3,s_dec_init4,s_dec_init5
 					);
 	
   type loadType is (

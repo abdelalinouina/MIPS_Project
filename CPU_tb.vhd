@@ -7,13 +7,26 @@ end cpu_tb ;
 
 architecture TB of cpu_tb is 
 signal clk : std_logic:='0';
-signal rst: std_logic;
+signal rst,rst_peripheral: std_logic;
+signal INPr0_en,INPr1_en : std_logic;
+signal INPr1_Input, INPr0_Input: std_logic_vector(31 downto 0);
+
 begin
+
+
+INPr1_Input<=x"00000002";
+INPr0_Input<=x"00000002";
 	
 UUT: entity work.cpu
 		port map (
 				clk =>clk,
-				rst=>rst
+				rst=>rst,
+				rst_peripheral=>rst_peripheral,
+				INPr0_en=>INPr0_en,
+				INPr1_en=>INPr1_en,
+				INPr1_Input=>INPr1_Input,
+				INPr0_Input=>INPr0_Input
+				
 				);	
 	
 
@@ -23,6 +36,8 @@ UUT: entity work.cpu
 process 
 begin
 rst       <= '1';
+INPr1_en  <='1';
+INPr0_en  <='1';
 wait for 10 ns;
 rst       <= '0';	
 wait; 

@@ -6,16 +6,24 @@ use work.library_file.all;
 entity CPU is
 		generic (width  :     positive := 32);
 		port 	(rst	: 	  in std_logic;
+				 INPr0_en: 	  in std_logic;
+				 INPr1_en: 	  in std_logic;
+				 INPr1_Input : in std_logic_vector(31 downto 0);
+				 INPr0_Input : in std_logic_vector(31 downto 0);
+				 OUTPR0_data :out std_logic_vector(31 downto 0);
+				 OUTPR1_data :out std_logic_vector(31 downto 0);
+				 rst_peripheral	: 	  in std_logic;
 				 clk	: 	  in std_logic	);			
 end CPU ;
 
 architecture  bhv of CPU  is
 		
-      signal IR_5downto0out :  std_logic_vector(5 downto 0);  
+      signal IR_5downto0out :  std_logic_vector(5 downto 0); 
+      signal regB_disable	: std_logic; 
       signal IR20down16:  std_logic_vector(4 downto 0); 
       signal PCWriteCond:  std_logic;
       signal PCWrite:  std_logic;
-      signal IorD : std_logic;
+      signal IorD,OUTPr0_en,OUTPr1_en : std_logic;
       signal MemWrite,MemRead:  std_logic;
       signal IRWrite:  std_logic;
       signal RegDst:  std_logic;
@@ -29,17 +37,19 @@ architecture  bhv of CPU  is
       signal ALU_src_A,memToReg : std_logic;
       signal ALU_OP:  std_logic_vector(4 downto 0);
       signal PC_Source,LO_HI_sel:  std_logic_vector(1 downto 0);
-      signal PC_or_ALU_MUX,memRegOut,sigExtd_out,Mux_A_PC_out,shifLeft_out1,LO_out,HI_out,to_HI,to_write_MUX : std_logic_vector(31 downto 0);
+      signal PC_or_ALU_MUX,memRegOut,sigExtd_out,Mux_A_PC_out,shifLeft_out1,LO_out,HI_out,to_HI,Address_decoder_output,to_write_MUX : std_logic_vector(31 downto 0);
       signal MUX_ALU_or_IR,writeData,readData1,readData2,MUX_B_or_IR_OUT,IR26_shifted,memRegDecoder_output: std_logic_vector(31 downto 0);
-      signal memoryOutPut,IR_out,PC_out,ALU_out,RegB_out,RegA_out,ALU_OUT_temp,shift_left_input,RegB_out_mem  : std_logic_vector(31 downto 0);
+      signal memoryOutPut,IR_out,PC_out,ALU_out,RegB_out,RegA_out,inport0_reg,inport1_reg,ALU_OUT_temp,shift_left_input,RegB_out_mem  : std_logic_vector(31 downto 0);
       signal IR_MUX_OUT: std_logic_vector(4 downto 0);      
-      signal Branch : std_logic ;
+      signal Branch,Ram_wr_en,Ram_rd_en : std_logic ;
+      signal address_out : std_Logic_vector(7 downto 0);
 begin
 
 
 U_controller : entity work.controller	
 	port map(
 		rst=>rst,
+		regB_disable=>regB_disable,
 		clk	=> clk,
         IR_5downto0out =>IR_5downto0out, 
         IR20down16=>IR20down16,      
@@ -90,11 +100,11 @@ U_MUX_PC_or_ALU : entity work.mux2x1
 
 U_MEMORY : entity work.memory	
 	port map(
-		address		=>PC_or_ALU_MUX(7 downto 0),
+		address		=>address_out,
 		clock		=>clk,
 		data		=>RegB_out_mem,
-		wren		=>MemWrite,
-		rden 		=> MemRead,
+		wren		=>Ram_wr_en,
+		rden 		=> Ram_rd_en,
 		q			=>memoryOutPut
 );
 
@@ -102,7 +112,7 @@ U_MEMORY : entity work.memory
 U_IR: entity work.reg
 generic map (width=>32)
 port map (
-		input=>memoryOutPut ,
+		input=>Address_decoder_output ,
 		output=>IR_OUT,
 		load =>IRWrite ,
 		rst=> rst,
@@ -139,13 +149,75 @@ generic map (width => 32)
 U_Mem_reg: entity work.reg
 generic map (width=>32)
 port map (
-		input=>memoryOutPut ,
+		input=>Address_decoder_output ,
 		output=>memRegOut,
 		load =>'1' ,
 		rst=> rst,
 		clk => clk
 );
 
+U_INPORT0: entity work.reg
+generic map (width=>32)
+port map (
+		input=>INPr0_Input ,
+		output=>inport0_reg,
+		load =>INPr0_en ,
+		rst=> rst_peripheral,
+		clk => clk
+);
+
+U_INPORT1: entity work.reg
+generic map (width=>32)
+port map (
+		input=>INPr1_Input ,
+		output=>inport1_reg,
+		load =>INPr1_en ,
+		rst=> rst_peripheral,
+		clk => clk
+);
+
+U_OUTPORT0: entity work.reg
+generic map (width=>32)
+port map (
+		input=>RegB_out_mem ,
+		output=>OUTPR0_data,
+		load =>OUTPr0_en ,
+		rst=> rst ,
+		clk => clk
+);
+
+U_OUTPORT1: entity work.reg
+generic map (width=>32)
+port map (
+		input=>RegB_out_mem ,
+		output=>OUTPR1_data,
+		load =>OUTPr1_en ,
+		rst=> rst,
+		clk => clk
+);
+
+U_ADDRESS_DECODER : entity work.address_decoder
+
+
+port map (
+
+		clk=>clk,
+		rst=>rst,
+		address=>PC_or_ALU_MUX,
+		inport1=> inport1_reg,
+		inport0=>inport0_reg,
+		ram_input=>memoryOutPut,
+		
+		wr_en=>MemWrite,
+		rd_en=>MemRead,
+		outport1_en=>OUTPr1_en,
+		outport0_en=>OUTPr0_en,
+		 Ram_wr_en=>Ram_wr_en,
+		 Ram_rd_en=>Ram_rd_en,
+		output=>Address_decoder_output,
+		address_out=>address_out
+
+);
 
 		
 U_memRegDecoder : entity work.memRegDecoder
@@ -199,7 +271,7 @@ generic map (width=>32)
 port map (
 		input=> readData2,
 		output=>RegB_out,
-		load => '1',
+		load => regB_disable,
 		rst=> rst,
 		clk => clk
 );

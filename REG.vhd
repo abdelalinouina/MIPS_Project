@@ -4,7 +4,7 @@ use ieee.std_logic_1164.all;
 
 entity reg is
   generic (
-    width  :     positive := 16);
+    width  :     positive := 32);
   port (
     clk    : in  std_logic;
     rst    : in  std_logic;

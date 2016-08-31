@@ -22,6 +22,7 @@ port (
         ALUOP: out std_logic_vector(4 downto 0);
         PCSource: out std_logic_vector(1 downto 0);
         Load_type: out LoadType;
+        regB_disable: out std_logic;
         store_type: out storeType);
         
 end controller;
@@ -42,6 +43,7 @@ begin
 	
 process(state,IR_5downto0out,IR20down16)
 begin	
+		regB_disable<='1';
 		IorD<='0';		
 		MemRead<='0';
 		MemWrite <='0';
@@ -66,7 +68,8 @@ case state is
 		MemRead<='1';
 		next_state <= s_Instruction_Fetch;
 
-	when s_Instruction_Fetch=>		
+	when s_Instruction_Fetch=>
+		MemRead<='1';	
 		IRWrite<='1';
 		next_state <= s_Instruction_Fetch2;
 		
@@ -83,6 +86,7 @@ case state is
 		ALUSrcA<='0';
 		ALUSrcB<="11";
 		ALUop<="01000";
+		regB_disable<='0';
 		
 		case IR_5downto0out is 
 		
@@ -248,12 +252,14 @@ case state is
 			
 	when s_Memory_address_computaion =>
 			next_state <= s_Memory_address_computaion_wait;
+			regB_disable<='0';
 			
 		when s_Memory_address_computaion_wait =>	
 			ALUSrcA<='1';
 			ALUSrcB<="10";
 			ALUop<="01000";
 			IorD<='1';	
+			regB_disable <='0';
 			NEXT_STATE<=s_Memory_access_read;
 		
 		case IR_5downto0out is 
