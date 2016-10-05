@@ -22,12 +22,5 @@ type functions is (
 					s_Memory_read_completion_step,s_dec_init,s_dec_init2,s_dec_init3,s_dec_init4,s_dec_init5
 					);
 	
-  type loadType is (
-					Load_word, Load_half_s, 	load_byte_s,Load_half_U, 	load_byte_U
-					);
-					
-  type storeType is (
-					store_word, 	Store_half, 	store_byte
-					);
 
 end package;

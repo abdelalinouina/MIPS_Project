@@ -64,7 +64,7 @@ begin  -- STR
 
     -- instantiate adder (has to be eight bits for this top-level file)
 U_cpu : entity work.cpu
-	generic map (width=>8)
+	generic map (width=>32)
 	port map(
 		clk		=>clk,
 		rst		=>rst_signal,
@@ -74,8 +74,8 @@ U_cpu : entity work.cpu
 		
 		INPr0_Input(7 downto 0)		=>switches(7 downto 0),
 		INPr0_Input(31 downto 8)	=>std_logic_vector(to_unsigned(0,24)),
-		OUTPR0_data(15 downto 0)			=>outport0,
-		OUTPR1_data(15 downto 0)			=>outport1,
+		--OUTPR0_data(15 downto 0)			=>outport0,
+		--OUTPR1_data(15 downto 0)			=>outport1,
 		INPr0_en =>inport0_en_sig,
 		INPr1_en =>inport1_en_sig
 		

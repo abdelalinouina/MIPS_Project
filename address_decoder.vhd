@@ -49,13 +49,13 @@ if (address(31 downto 8)=x"000000" and wr_en='1') then
 	Ram_rd_en <='0';
 end if ;
 
-if (address(31 downto 0)=x"00007FFE" and wr_en='1') then 
+if (address(31 downto 0)=x"0000FFFE" and wr_en='1') then 
 	
 	next_state <= s_dec_init4;
 	
 end if ;
 
-if (address(31 downto 0)=x"00007FFF" and wr_en='1') then 
+if (address(31 downto 0)=x"0000FFFF" and wr_en='1') then 
 	
 	next_state <= s_dec_init5;
 end if ;
@@ -65,12 +65,12 @@ if (address(31 downto 8)=x"000000" and rd_en='1') then
 	output <=ram_input(31 downto 0);
 end if ;
 
-if (address(31 downto 0)=x"00007FFE"  and rd_en='1') then 
+if (address(31 downto 0)=x"0000FFFE"  and rd_en='1') then 
 	next_state <= s_dec_init2;
 	
 end if ;
 
-if (address(31 downto 0)=x"00007FFF"  and rd_en='1') then 
+if (address(31 downto 0)=x"0000FFFF"  and rd_en='1') then 
 	next_state <= s_dec_init3;
 	--output <=inport1;
 end if ;

@@ -15,7 +15,7 @@ begin
 
 
 INPr1_Input<=x"00000002";
-INPr0_Input<=x"00000002";
+INPr0_Input<=x"00000003";
 	
 UUT: entity work.cpu
 		port map (

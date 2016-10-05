@@ -2,6 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.library_file.all;
+use work.MIPS_LIB.all;
 entity controller is
 
 generic (WIDTH : positive := 32);
@@ -19,11 +20,11 @@ port (
         regWrite,jumpAndLink: out std_logic;
         ALUsrcB: out std_logic_vector(1 downto 0);
         ALUsrcA: out std_logic;
-        ALUOP: out std_logic_vector(4 downto 0);
-        PCSource: out std_logic_vector(1 downto 0);
-        Load_type: out LoadType;
+        ALUOP: out std_logic_vector(5 downto 0);
+        PCSource: out std_logic_vector(1 downto 0);       
         regB_disable: out std_logic;
-        store_type: out storeType);
+        IsSigned : out std_logic
+        );
         
 end controller;
 
@@ -55,13 +56,12 @@ begin
 		PCSource<="00";
 		ALUSrcA<='0';
 		ALUSrcB<="00";
-		ALUop<="01000";
+		ALUop<=add;
 		regDst <='0';
 		regWrite<='0';
 		jumpAndLink <='0';
 		memToReg <='0';
-		Load_type <= load_word;
-		store_type <=store_word;		
+		IsSigned <='1';
 		NEXT_STATE<=s_Instruction_Fetch;
 case state is 
 	when s_Init=>	
@@ -79,20 +79,20 @@ case state is
 		ALUSrcB<="01";
 		PCWrite<='1';
 		PCSource<="00";
-		ALUop<="01000";		
+		ALUop<=add;		
 		NEXT_STATE<=S_Instruction_Read;
 		
 	WHEN S_Instruction_Read=>		
 		ALUSrcA<='0';
 		ALUSrcB<="11";
-		ALUop<="01000";
+		ALUop<=add;
 		regB_disable<='0';
 		
 		case IR_5downto0out is 
 		
 			when "000000" => -- 00 R_Type
 			Next_state <= s_Exectution;
-			
+			regB_disable<='1';
 			when "100011" => --23 load word
 			NEXT_STATE<=s_Memory_address_computaion;
 			
@@ -153,9 +153,9 @@ case state is
 			
 			when "000001" => 
 			     case IR20down16 is
-					when "00001" => -- 01-01 Brand on greater then or equal to 0
+					when "00001" => -- 01-01 Branch on greater then or equal to 0
 							next_state <= s_bgez;
-					when "00000" => -- 01-00 Brand on greater then or equal to 0
+					when "00000" => -- 01-00 Branch on greater then or equal to 0
 							next_state <= s_bltz;
 					when others => null;
 					end case;
@@ -171,7 +171,7 @@ case state is
 				PCWrite <='1';
 				AluSrcA <='0';
 				AluSrcB <="01";
-				ALuOp   <="10000";
+				ALuOp   <=out_A;
 				
 		when others =>null;
 		end case;
@@ -188,7 +188,7 @@ case state is
 		when s_beq =>
 			aluSRCA <='1';
 			ALuSRcB<="00";
-			ALUOp <="01110";
+			ALUOp <=beq;
 			PCWriteCond <='1';
 			PCSource <="01";		
 			next_state <= s_init;			
@@ -196,7 +196,7 @@ case state is
 		when s_bgez =>
 			aluSRCA <='1';
 			ALuSRcB<="00";
-			ALUOp <="01101";
+			ALUOp <=bgez;
 			PCWriteCond <='1';
 			PCSource <="01";		
 			next_state <= s_init;		
@@ -204,7 +204,7 @@ case state is
 		when s_bne =>
 			aluSRCA <='1';
 			ALuSRcB<="00";
-			ALUOp <="01001";
+			ALUOp <=bne;
 			PCWriteCond <='1';
 			PCSource <="01";		
 			next_state <= s_init;
@@ -212,7 +212,7 @@ case state is
 		when s_blez =>
 			aluSRCA <='1';
 			ALuSRcB<="00";
-			ALUOp <="01010";
+			ALUOp <=blez;
 			PCWriteCond <='1';
 			PCSource <="01";		
 			next_state <= s_init;
@@ -221,7 +221,7 @@ case state is
 		when s_bgtz =>
 			aluSRCA <='1';
 			ALuSRcB<="00";
-			ALUOp <="01011";
+			ALUOp <=bgtz;
 			PCWriteCond <='1';
 			PCSource <="01";		
 			next_state <= s_init;
@@ -230,7 +230,7 @@ case state is
 		when s_bltz =>
 			aluSRCA <='1';
 			ALuSRcB<="00";
-			ALUOp <="01100";
+			ALUOp <=bltz;
 			PCWriteCond <='1';
 			PCSource <="01";		
 			next_state <= s_init;
@@ -239,7 +239,7 @@ case state is
 	when s_Exectution =>
 			AluSrcA <= '1';
 			AluSrcB <="00";
-			ALuOp<= "00010";
+			ALuOp<= R_type;
 			PCWritecond <='1';
 			PCSource<="00";		
 			next_state <= s_R_type_completion;
@@ -256,8 +256,9 @@ case state is
 			
 		when s_Memory_address_computaion_wait =>	
 			ALUSrcA<='1';
+			IsSigned <='0';
 			ALUSrcB<="10";
-			ALUop<="01000";
+			ALUop<=add;
 			IorD<='1';	
 			regB_disable <='0';
 			NEXT_STATE<=s_Memory_access_read;
@@ -279,19 +280,18 @@ case state is
 		when s_Memory_access_write =>		
 			MemWrite<='1';
 			IorD<='1';
-			case IR_5downto0out is 
-			
-				when "101011" => -- 2B store word
-				store_type <= store_word;
-				
-				when "101000" => -- 28 store Byte
-				store_type <= store_Byte;
-				
-				when "101001" => -- 29 store halfword
-				store_type <= store_half;
-				
-				when others => null;
-			end case;
+--			case IR_5downto0out is 
+--			
+--				when "101011" => -- 2B store word
+--				
+--				when "101000" => -- 28 store Byte
+--				store_type <= store_Byte;
+--				
+--				when "101001" => -- 29 store halfword
+--				store_type <= store_half;
+--				
+--				when others => null;
+--			end case;
 			next_state <=s_Memory_access_write2;
 		
 	when  s_Memory_access_write2 =>
@@ -311,69 +311,69 @@ case state is
 			regWrite<='1';		
 			MemToReg<='1';
 		
-		case IR_5downto0out is			
-			
-			when "100011" => --23 load word
-			Load_type <= load_word;			
-			
-			when "100000" => --20 load Byte signed
-			Load_type <= load_Byte_s;
-			
-			when "100100" => --24 load Byte unsigned
-			Load_type <= load_Byte_u;
-			
-			when "100001" => --21 load Half word signed
-			Load_type <= load_Half_s;
-			
-			when "100101" => --25 load half word unsigned
-			Load_type <= load_Half_u;
-			
-			when others => null;
-			end case;
+--		case IR_5downto0out is			
+--			
+--			when "100011" => --23 load word
+--			Load_type <= load_word;			
+--			
+--			when "100000" => --20 load Byte signed
+--			Load_type <= load_Byte_s;
+--			
+--			when "100100" => --24 load Byte unsigned
+--			Load_type <= load_Byte_u;
+--			
+--			when "100001" => --21 load Half word signed
+--			Load_type <= load_Half_s;
+--			
+--			when "100101" => --25 load half word unsigned
+--			Load_type <= load_Half_u;
+--			
+--			when others => null;
+--			end case;
 		
 		NEXT_STATE<=s_Init	;
 		
 		when s_add_immediate_u =>		
 			AluSrcA <= '1';
 			AluSrcB <="10";
-			ALuOp<= "01000";		
+			ALuOp<= add;		
 			next_state <= s_Type_I_completion;
 		
 		
 		when s_subiu =>
 			AluSrcA <= '1';
 			AluSrcB <="10";
-			ALuOp<= "00001";
+			ALuOp<= sub_op;
 			next_state <= s_Type_I_completion;
 			
 		when s_andi =>
 			AluSrcA <= '1';
 			AluSrcB <="10";
-			ALuOp<= "00011";
+			ALuOp<= and_op;
 			next_state <= s_Type_I_completion;
 		
 		when s_ori =>
 			AluSrcA <= '1';
 			AluSrcB <="10";
-			ALuOp<= "00100";
+			ALuOp<= or_op;
 			next_state <= s_Type_I_completion;
 			
 		when s_set_s =>
 			AluSrcA <= '1';
 			AluSrcB <="10";
-			ALuOp<= "00110";
+			ALuOp<= set_s;
 			next_state <= s_Type_I_completion;
 			
 		when s_set_u =>
 			AluSrcA <= '1';
 			AluSrcB <="10";
-			ALuOp<= "00111";
+			ALuOp<= set_u;
 			next_state <= s_Type_I_completion;
 			
 		when s_xori =>
 			AluSrcA <= '1';
 			AluSrcB <="10";
-			ALuOp<= "00101";
+			ALuOp<= xor_op;
 			next_state <= s_Type_I_completion;		
 		
 	when s_Type_I_completion =>
