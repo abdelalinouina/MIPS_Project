@@ -11,8 +11,8 @@ Content							-- To use this program correctly follow this stpes
 							-- All the entries will get displayed continously in the ascending order
   Begin
 
---  In this part, we will load the size of the series and the unique entries
---  The entries will be stored in table starts with the address 0xC4 
+												--  In this part, we will load the size of the series and the unique entries
+												--  The entries will be stored in table starts with the address 0xC4 
 
 00 : 00100000000100100000000011000100	;		-- addiu $s2, $zero, adress		// load the table adress to S2/R18
 04 : 10001100000100001111111111111110	;		-- lw $s0, FFFE($zero)     		// load the size of the table from Inport0 to S0/R16				
@@ -30,8 +30,8 @@ Content							-- To use this program correctly follow this stpes
 28 : 00000010011000001000100000100001	; 		-- add $s1, $s3, $zero	 		// copy S3 to S1 and jump to "Store"
 2C : 00001000000000000000000000000100	;		-- j store				// jump to "Store"
 
--- IN this part we will apply the Buble sort to sort 
--- all the entries in the same memory space
+												-- IN this part we will apply the Buble sort to sort 
+												-- all the entries in the same memory space
 		
 						-- Sort:		
 30 : 00100000000101000000000000000001	;		-- addui $S4, $Zero, 1			// load immidiate 1 to S4/R20 , the counter for the interloop
@@ -62,8 +62,8 @@ Content							-- To use this program correctly follow this stpes
 78 : 00001000000000000000000000001110	;		-- j InterLoop				// jump to the interloop
 
 
--- In this part, we will load value from the memory
--- and store them in the ouport0
+												-- In this part, we will load value from the memory
+												-- and store them in the ouport0
 
 						--display:		
 7C : 00100000000100100000000011000100	;		-- addiu $s2, $zero, adress		// load the table adress to S2/R18
@@ -73,8 +73,8 @@ Content							-- To use this program correctly follow this stpes
 84 : 10001110010010010000000000000000	;		-- lw $t1, 0($s2)			// load from mem[s2] to t1
 88 : 10101100000010011111111111111111	;		-- sw $t1, FFFF($zero)			// store t1 to the outport1
 
--- the following nested loop will provide a 
--- delay of 1s between every 2 displays
+												-- the following nested loop will provide a 
+												-- delay of 1s between every 2 displays
 
 
 8C : 00100000000011000000000001111111	;		-- addiu $t4, $zero, 0x7F		// load t4 with the value 0x7F
