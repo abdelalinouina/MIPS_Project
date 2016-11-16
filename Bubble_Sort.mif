@@ -6,7 +6,7 @@ Data_radix = bin;
 Content							-- To use this program correctly follow this stpes
 							-- Step1:	select the size then enable Inport0
 							-- step2: 	select the first entry then enable inport1
-							-- step3:	press the resest button
+							-- step3:	press the resest botton
 							-- step3: 	change the entry value and enable inport1 for size-1 times
 							-- All the entries will get displayed continously in the ascending order
   Begin
