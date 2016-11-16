@@ -29,7 +29,7 @@ process(clk,rst)
 		end if ;
 	end process;
 	
-process(state,ram_input,inport0,inport1, wr_en,rd_en)
+process(address,state,ram_input,inport0,inport1, wr_en,rd_en)
 	begin
 address_out<=address(7 downto 0);
 Ram_wr_en<='0';
@@ -68,6 +68,7 @@ end if ;
 if (address(31 downto 0)=x"0000FFFE"  and rd_en='1') then 
 	next_state <= s_dec_init2;
 	
+	
 end if ;
 
 if (address(31 downto 0)=x"0000FFFF"  and rd_en='1') then 
@@ -93,7 +94,7 @@ when s_dec_init5 =>
 	
 	next_state <= s_dec_init;
 	outport1_en<='1';
-	output <=inport1;
+	--output <=inport1;
 	
 when others =>null;
 end case;

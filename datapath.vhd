@@ -185,7 +185,7 @@ port map (
 U_OUTPORT1: entity work.reg
 generic map (width=>32)
 port map (
-		input=>RegB_out_mem ,
+		input=>RegB_out ,
 		output=>OUTPR1_data,
 		load =>OUTPr1_en ,
 		rst=> rst,

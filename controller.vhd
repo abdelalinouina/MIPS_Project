@@ -65,11 +65,12 @@ begin
 		NEXT_STATE<=s_Instruction_Fetch;
 case state is 
 	when s_Init=>	
+		IorD <='0';
 		MemRead<='1';
 		next_state <= s_Instruction_Fetch;
 
 	when s_Instruction_Fetch=>
-		MemRead<='1';	
+		--MemRead<='1';	
 		IRWrite<='1';
 		next_state <= s_Instruction_Fetch2;
 		
@@ -83,11 +84,14 @@ case state is
 		NEXT_STATE<=S_Instruction_Read;
 		
 	WHEN S_Instruction_Read=>		
+		
+		regB_disable<='0';
+		next_state <= s_select;
+	
+	when s_select =>
 		ALUSrcA<='0';
 		ALUSrcB<="11";
 		ALUop<=add;
-		regB_disable<='0';
-		
 		case IR_5downto0out is 
 		
 			when "000000" => -- 00 R_Type
@@ -296,7 +300,7 @@ case state is
 		
 	when  s_Memory_access_write2 =>
 				next_state <= s_init;
-				IorD<='1';
+				IorD<='0';
 			
 		
 	when s_Memory_access_read =>		

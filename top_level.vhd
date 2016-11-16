@@ -17,7 +17,8 @@ entity top_level is
      --   led2_dp : out std_logic;
         led3    : out std_logic_vector(6 downto 0);
      --   led3_dp : out std_logic;
-          clk		: in std_logic
+          clk		: in std_logic;
+          rst_peripheral : in std_logic
        );
 end top_level;
 
@@ -68,14 +69,14 @@ U_cpu : entity work.cpu
 	port map(
 		clk		=>clk,
 		rst		=>rst_signal,
-		rst_peripheral		=>'0',
+		rst_peripheral		=>rst_peripheral,
 		INPr1_Input(7 downto 0)		=>switches(7 downto 0),
 		INPr1_Input(31 downto 8)	=>std_logic_vector(to_unsigned(0,24)),
 		
 		INPr0_Input(7 downto 0)		=>switches(7 downto 0),
 		INPr0_Input(31 downto 8)	=>std_logic_vector(to_unsigned(0,24)),
 		--OUTPR0_data(15 downto 0)			=>outport0,
-		--OUTPR1_data(15 downto 0)			=>outport1,
+		OUTPR1_data(15 downto 0)			=>outport1,
 		INPr0_en =>inport0_en_sig,
 		INPr1_en =>inport1_en_sig
 		

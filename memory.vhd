@@ -93,7 +93,7 @@ BEGIN
 	GENERIC MAP (
 		clock_enable_input_a => "BYPASS",
 		clock_enable_output_a => "BYPASS",
-		init_file => "C:\Users\User\Desktop\MIPS\Datapath_TestCase1.mif",
+		init_file => "C:\Users\User\Desktop\MIPS\Bubble.mif",
 		intended_device_family => "Cyclone III",
 		lpm_hint => "ENABLE_RUNTIME_MOD=NO",
 		lpm_type => "altsyncram",
